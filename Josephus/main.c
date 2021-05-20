@@ -1,200 +1,270 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/*Estrutura que representa um nó da lista*/
 typedef struct no
 {
-    char nome[30];
     int dado;
-    struct no *proxiNO;
-
+    struct no *proxNo;
 } tipoNo;
 
-typedef struct iLista
+/*Estrutura que guarda as informações de uma lista circular*/
+typedef struct listaGerenciada
 {
     tipoNo *fim;
     int quant;
-
 } tipoLista;
 
-void inicia_variavel(tipoLista *lista)
+/*Função que faz a inicialização da lista circular*/
+void inicializa(tipoLista *listaEnc)
 {
-    lista->fim = NULL;
-    lista->quant = 0;
-
+    listaEnc->fim = NULL;
+    listaEnc->quant = 0;
 }
 
-int lista_vazia(tipoLista *lista, int valor)
+/*Função que retorna 1 caso a lista esteja vazia e 0 caso esteja povoada*/
+int estaVazia(tipoLista *listaEnc)
 {
-
-    tipoNo *novoNo;
-
-    novoNo =(tipoNo*) malloc(sizeof (tipoNo));
-    if (novoNo == NULL)
-    {
+    if (listaEnc->fim == NULL)
+        return 1;
+    else
         return 0;
-    }
+}
 
+/*Função que faz a inserção de um nó em uma lista vazia*/
+int insereListaVazia(tipoLista *listaEnc, int valor)
+{
+    tipoNo *novoNo;
+    novoNo = (tipoNo*) malloc(sizeof(tipoNo));
+    if(novoNo == NULL)
+        return 0;
     novoNo->dado = valor;
-    novoNo->proxiNO = novoNo;
-    lista->fim= novoNo;
-    lista->quant++;
+    novoNo->proxNo = novoNo;
+    listaEnc->fim = novoNo;
+    listaEnc->quant++;
     return 1;
 }
 
-int inserir_naFrente (tipoLista *lista, int valor)
+/*Função que percorre a lista exibindo todos os seus dados*/
+void exibeLista(tipoLista *listaEnc)
 {
-
-    tipoNo *novoNo;
-
-    if (lista->fim == NULL)
+    tipoNo *atual;  /*Variável que será usada para percorrer a lista*/
+    atual = listaEnc->fim->proxNo;
+    printf("\nLista encadeada: ");
+    printf("%8d",atual->dado);
+    while(atual !=listaEnc->fim)
     {
-        lista_vazia(lista,valor);
+        atual = atual->proxNo;
+        printf("%8d",atual->dado);
     }
+}
+
+/*Função que insere elemento no inicio da lista*/
+int insereNaFrente(tipoLista *listaEnc, int valor)
+{
+    tipoNo *novoNo;
+    if(listaEnc->fim==NULL)
+        insereListaVazia(listaEnc, valor);
     else
     {
         novoNo = (tipoNo*)malloc(sizeof(tipoNo));
-        if (novoNo == NULL)
-        {
+        if(novoNo==NULL)
             return 0;
-        }
-
-        novoNo->dado = valor;
-        novoNo->proxiNO = lista->fim->proxiNO;
-        lista->fim->proxiNO = novoNo;
-        lista->quant++;
+        novoNo->dado=valor;
+        novoNo->proxNo=listaEnc->fim->proxNo;
+        listaEnc->fim->proxNo=novoNo;
+        listaEnc->quant++;
+        return 1;
     }
-    return 1;
-
 }
 
-int inserir_noFim (tipoLista *lista, int valor)
+/*Função que remove elemento do final da lista*/
+void removeDoFim(tipoLista *listaEnc)
 {
-
-    tipoNo *novoNo,*atual;
-
-    if (lista->fim == NULL)
+    tipoNo *atual, *antigo;
+    atual = listaEnc->fim->proxNo;
+    if(atual->proxNo == atual)
     {
-        lista_vazia(lista,valor);
+        listaEnc->fim = NULL;
+        listaEnc->quant--;
     }
     else
     {
-        novoNo = (tipoNo*) malloc(sizeof(tipoNo));
-        if (novoNo == NULL)
+        while(atual!=listaEnc->fim)
         {
-            return 0;
+            antigo = atual;
+            atual= atual->proxNo;
         }
-        novoNo->dado = valor;
-        novoNo->proxiNO = lista->fim->proxiNO;
-        lista->fim->proxiNO = novoNo;
-        lista->fim = novoNo;
-        lista->quant++;
-        return 1;
+        antigo->proxNo=antigo->proxNo->proxNo; /* ou recebe listaEnc->fim->proxNo;*/
+        listaEnc->fim=antigo;
     }
-
-}
-
-void remover_naFrente (tipoLista *lista)
-{
-
-    tipoNo *atual;
-    atual = lista->fim->proxiNO;
-    lista->fim->proxiNO = atual->proxiNO;
-
-    printf("fim lista %d\n",lista->fim->dado);
     free(atual);
 }
 
-void destruir_lista (tipoLista *lista)
+/*Função que insere elemento ao final da lista*/
+int insereNoFim(tipoLista *listaEnc, int valor)
 {
-
-    tipoNo *aux;
-    aux = lista->fim->proxiNO;
-    while (aux != lista->fim)
+    tipoNo *novoNo;
+    if(listaEnc->fim == NULL)
+        insereListaVazia(listaEnc, valor);
+    else
     {
-        remover_naFrente(&lista);
-        aux = aux->proxiNO;
-
+        novoNo = (tipoNo*) malloc(sizeof (novoNo));
+        if(novoNo == NULL)
+            return 0;
+        novoNo->dado = valor;
+        novoNo->proxNo = listaEnc->fim->proxNo;
+        listaEnc->fim->proxNo = novoNo;
+        listaEnc->fim = novoNo;
+        listaEnc->quant++;
     }
 }
 
-int verificar_posicao (tipoLista *lista,int valor)
+/*Função que insere elemento no inicio da lista*/
+void removeDoInicio(tipoLista *listaEnc)
 {
-
-    int cont = 1;
-    tipoNo *aux;
-
-    aux = lista->fim->proxiNO;
-    if (aux->dado == valor)
-    {
-        return 1;
-    }
-    while (aux->dado !=lista->fim)
-    {
-        if (valor == aux->dado)
-        {
-            return cont;
-        }
-        cont = cont+1;
-        aux = aux->proxiNO;
-    }
-
-}
-
-
-void exibir_lista (tipoLista *lista)
-{
-
     tipoNo *atual;
-    atual = lista->fim->proxiNO;
-
-    printf("%5d", atual->dado);
-    while(atual != lista->fim)
+    if(listaEnc->quant > 1)
     {
-        atual = atual->proxiNO;
-        printf("%5d",atual->dado);
+        atual = listaEnc->fim->proxNo;
+        printf("\nNo removido ===> %d",atual->dado);
+        listaEnc->fim->proxNo = atual->proxNo;
     }
-
+    else
+        listaEnc->fim = NULL;
+    listaEnc->quant--;
+    free(atual);
 }
 
-
-int main()
+/*Função que destroi a lista, liberando a memória*/
+void destruirLista(tipoLista *listaEnc)
 {
-    tipoLista lista;
-    int valor,esc;
-    inicia_variavel(&lista);
+    while(!estaVazia(listaEnc))
+    {
+        removeDoInicio(listaEnc);
+    }
+}
 
+/*Função que busca dado na lista e retorna a posição em que o dado foi encontrado*/
+int buscaDado(tipoLista *listaEnc, int valor)
+{
+    tipoNo *atual, *antigo;
+    int cont=1;
+    atual=listaEnc->fim;
     do
     {
-        system("cls");
-        printf("==============================\n");
-        printf("1 - Adicionar Clientes \n");
-        printf("2 - Remover cliente\n");
-        printf("3 - Realizar Sorteio!\n");
-        printf("4 - Sair do programa\n\n");
-        printf("Opcao: ");
-        scanf("%d",&esc);
 
-        switch(esc)
+        atual=atual->proxNo; /*O primeiro ponteiro recebido aponta para o inicio da lista*/
+        if(atual->dado == valor)
+            antigo->proxNo = atual->proxNo->proxNo;
+        free(atual);
+        return cont;
+        cont++;
+    }
+    while(atual != listaEnc->fim);
+    return 0; /*Caso o dado não seja encontrado, é retornado o valor zero*/
+}
+
+int removeDaLista(tipoLista *listaEnc, int valor)
+{
+    tipoNo *aux, *seguinte;
+
+    if(listaEnc->fim)
+    {
+        aux = listaEnc->fim;
+        seguinte = aux->proxNo;
+        while(seguinte != listaEnc->fim)
+        {
+            if(!strcmp(seguinte->dado, valor))
+            {
+                aux->proxNo = seguinte->proxNo;
+                free(seguinte);
+                listaEnc->quant--;
+                return 1;
+            }
+            aux = seguinte;
+            seguinte = seguinte ->proxNo;
+        }
+        if(!strcmp(seguinte->dado, valor))
+        {
+            if(aux == seguinte)
+            {
+                listaEnc->fim == NULL;
+
+            }
+            else
+            {
+                aux->proxNo = seguinte->proxNo;
+                listaEnc->fim == seguinte->proxNo;
+            }
+            free(seguinte);
+            listaEnc->quant--;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void main()
+{
+    tipoLista lista;
+    int aux, aux2, dado, op;
+    inicializa(&lista);
+    do
+    {
+        printf("\n===============MENU===============");
+        printf("\n1 - Insere elemento em lista vazia");
+        printf("\n2 - Insere elemento na frente da lista");
+        printf("\n3 - Remove do inicio");
+        printf("\n4 - Insere elemento no fim da lista");
+        printf("\n5 - Busca dado na lista");
+        printf("\n6 - Remove elemento do fim da lista");
+        printf("\n9 - Exibe lista");
+        printf("\n10 - Projeto");
+        printf("\n0 - Encerra programa");
+        printf("\nEscolha sua opcao: ");
+        scanf("%d",&op);
+        switch(op)
         {
         case 1:
-            system("cls");
-            printf("Digite um valor inteiro\n");
-            scanf("%d", &valor);
-            inserir_naFrente(&lista,valor);
+            printf("\nDigite o elemento que deseja inserir: ");
+            scanf("%d",&aux);
+            insereListaVazia(&lista, aux);
+            break;
+        case 2:
+            printf("\nDigite o elemento que deseja inserir: ");
+            scanf("%d",&aux);
+            insereNaFrente(&lista, aux);
             break;
         case 3:
-            system("cls");
+            removeDoInicio(&lista);
             break;
         case 4:
-            exit(1);
-
-        default :
-            system("cls");
-            printf("Numero invalido, tente novamente! \n\n");
-            system("pause");
+            printf("\nDigite o elemento que deseja inserir: ");
+            scanf("%d",&aux);
+            insereNoFim(&lista, aux);
+            break;
+        case 5:
+            printf("\nDigite o elemento que deseja buscar: ");
+            scanf("%d",&aux);
+            buscaDado(&lista, aux);
+            break;
+        case 6:
+            removeDoFim(&lista);
+            break;
+        case 9:
+            exibeLista(&lista);
+            break;
+        case 10:
+            printf("\nDigite o elemento que deseja remover: ");
+            scanf("%d",&aux);
+            removeDaLista(&lista, aux);
+            break;
+        case 0:
+            printf("\nEncerrando programa.");
+            destruirLista(&lista);
             break;
         }
     }
-    while(esc != 0);
-    return 0;
+    while(op != 0);
 }
