@@ -3,7 +3,9 @@
 	<stdio.h>
 	<stdlib.h>
 
-1621468294 source:c:\users\ikaruz\documents\projectscodeblocks\josephus\josephus\main.c
+1621560109 source:c:\users\ikaruz\documents\projectscodeblocks\josephus\josephus\main.c
 	<stdio.h>
 	<stdlib.h>
+	<string.h>
+	<time.h>
 
